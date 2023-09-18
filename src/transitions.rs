@@ -289,8 +289,6 @@ impl FixedTimespanSetBuilder {
         start_utc_offset: &mut i64,
         start_dst_offset: &mut i64,
     ) {
-        use std::mem::replace;
-
         for year in 1800..2100 {
             if use_until && year > timespan.end_time.unwrap().year() {
                 break;
@@ -334,15 +332,12 @@ impl FixedTimespanSetBuilder {
 
                 if *insert_start_transition {
                     if earliest_at < self.start_time.unwrap() {
-                        replace(start_utc_offset, timespan.offset);
-                        replace(start_dst_offset, *dst_offset);
-                        replace(
-                            start_zone_id,
-                            Some(
-                                timespan
-                                    .format
-                                    .format(*dst_offset, earliest_rule.letters.as_ref()),
-                            ),
+                        *start_utc_offset = timespan.offset;
+                        *start_dst_offset = *dst_offset;
+                        *start_zone_id = Some(
+                            timespan
+                                .format
+                                .format(*dst_offset, earliest_rule.letters.as_ref()),
                         );
                         continue;
                     }
@@ -350,13 +345,10 @@ impl FixedTimespanSetBuilder {
                     if start_zone_id.is_none()
                         && *start_utc_offset + *start_dst_offset == timespan.offset + *dst_offset
                     {
-                        replace(
-                            start_zone_id,
-                            Some(
-                                timespan
-                                    .format
-                                    .format(*dst_offset, earliest_rule.letters.as_ref()),
-                            ),
+                        *start_zone_id = Some(
+                            timespan
+                                .format
+                                .format(*dst_offset, earliest_rule.letters.as_ref()),
                         );
                     }
                 }
